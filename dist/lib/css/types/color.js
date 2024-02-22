@@ -1,160 +1,139 @@
-import {CSSValue, nonFunctionArgSeparator, Parser} from '../syntax/parser';
-import {TokenType} from '../syntax/tokenizer';
-import {ITypeDescriptor} from '../ITypeDescriptor';
-import {angle, deg} from './angle';
-import {getAbsoluteValue, isLengthPercentage} from './length-percentage';
-import {Context} from '../../core/context';
-export type Color = number;
-
-export const color: ITypeDescriptor<Color> = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.COLORS = exports.parseColor = exports.pack = exports.asString = exports.isTransparent = exports.color = void 0;
+var parser_1 = require("../syntax/parser");
+var angle_1 = require("./angle");
+var length_percentage_1 = require("./length-percentage");
+exports.color = {
     name: 'color',
-    parse: (context: Context, value: CSSValue): Color => {
-        if (value.type === TokenType.FUNCTION) {
-            const colorFunction = SUPPORTED_COLOR_FUNCTIONS[value.name];
+    parse: function (context, value) {
+        if (value.type === 18 /* FUNCTION */) {
+            var colorFunction = SUPPORTED_COLOR_FUNCTIONS[value.name];
             if (typeof colorFunction !== 'undefined') {
                 return colorFunction(context, value.values);
             }
         }
-
-        if (value.type === TokenType.HASH_TOKEN) {
+        if (value.type === 5 /* HASH_TOKEN */) {
             if (value.value.length === 3) {
-                const r = value.value.substring(0, 1);
-                const g = value.value.substring(1, 2);
-                const b = value.value.substring(2, 3);
-                return pack(parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16), 1);
+                var r = value.value.substring(0, 1);
+                var g = value.value.substring(1, 2);
+                var b = value.value.substring(2, 3);
+                return exports.pack(parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16), 1);
             }
-
             if (value.value.length === 4) {
-                const r = value.value.substring(0, 1);
-                const g = value.value.substring(1, 2);
-                const b = value.value.substring(2, 3);
-                const a = value.value.substring(3, 4);
-                return pack(parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16), parseInt(a + a, 16) / 255);
+                var r = value.value.substring(0, 1);
+                var g = value.value.substring(1, 2);
+                var b = value.value.substring(2, 3);
+                var a = value.value.substring(3, 4);
+                return exports.pack(parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16), parseInt(a + a, 16) / 255);
             }
-
             if (value.value.length === 6) {
-                const r = value.value.substring(0, 2);
-                const g = value.value.substring(2, 4);
-                const b = value.value.substring(4, 6);
-                return pack(parseInt(r, 16), parseInt(g, 16), parseInt(b, 16), 1);
+                var r = value.value.substring(0, 2);
+                var g = value.value.substring(2, 4);
+                var b = value.value.substring(4, 6);
+                return exports.pack(parseInt(r, 16), parseInt(g, 16), parseInt(b, 16), 1);
             }
-
             if (value.value.length === 8) {
-                const r = value.value.substring(0, 2);
-                const g = value.value.substring(2, 4);
-                const b = value.value.substring(4, 6);
-                const a = value.value.substring(6, 8);
-                return pack(parseInt(r, 16), parseInt(g, 16), parseInt(b, 16), parseInt(a, 16) / 255);
+                var r = value.value.substring(0, 2);
+                var g = value.value.substring(2, 4);
+                var b = value.value.substring(4, 6);
+                var a = value.value.substring(6, 8);
+                return exports.pack(parseInt(r, 16), parseInt(g, 16), parseInt(b, 16), parseInt(a, 16) / 255);
             }
         }
-
-        if (value.type === TokenType.IDENT_TOKEN) {
-            const namedColor = COLORS[value.value.toUpperCase()];
+        if (value.type === 20 /* IDENT_TOKEN */) {
+            var namedColor = exports.COLORS[value.value.toUpperCase()];
             if (typeof namedColor !== 'undefined') {
                 return namedColor;
             }
         }
-
-        return COLORS.TRANSPARENT;
+        return exports.COLORS.TRANSPARENT;
     }
 };
-
-export const isTransparent = (color: Color): boolean => (0xff & color) === 0;
-
-export const asString = (color: Color): string => {
-    const alpha = 0xff & color;
-    const blue = 0xff & (color >> 8);
-    const green = 0xff & (color >> 16);
-    const red = 0xff & (color >> 24);
-    return alpha < 255 ? `rgba(${red},${green},${blue},${alpha / 255})` : `rgb(${red},${green},${blue})`;
+var isTransparent = function (color) { return (0xff & color) === 0; };
+exports.isTransparent = isTransparent;
+var asString = function (color) {
+    var alpha = 0xff & color;
+    var blue = 0xff & (color >> 8);
+    var green = 0xff & (color >> 16);
+    var red = 0xff & (color >> 24);
+    return alpha < 255 ? "rgba(" + red + "," + green + "," + blue + "," + alpha / 255 + ")" : "rgb(" + red + "," + green + "," + blue + ")";
 };
-
-export const pack = (r: number, g: number, b: number, a: number): Color =>
-    ((r << 24) | (g << 16) | (b << 8) | (Math.round(a * 255) << 0)) >>> 0;
-
-const getTokenColorValue = (token: CSSValue, i: number): number => {
-    if (token.type === TokenType.NUMBER_TOKEN) {
+exports.asString = asString;
+var pack = function (r, g, b, a) {
+    return ((r << 24) | (g << 16) | (b << 8) | (Math.round(a * 255) << 0)) >>> 0;
+};
+exports.pack = pack;
+var getTokenColorValue = function (token, i) {
+    if (token.type === 17 /* NUMBER_TOKEN */) {
         return token.number;
     }
-
-    if (token.type === TokenType.PERCENTAGE_TOKEN) {
-        const max = i === 3 ? 1 : 255;
+    if (token.type === 16 /* PERCENTAGE_TOKEN */) {
+        var max = i === 3 ? 1 : 255;
         return i === 3 ? (token.number / 100) * max : Math.round((token.number / 100) * max);
     }
-
     return 0;
 };
-
-const rgb = (_context: Context, args: CSSValue[]): number => {
-    const tokens = args.filter(nonFunctionArgSeparator);
-
+var rgb = function (_context, args) {
+    var tokens = args.filter(parser_1.nonFunctionArgSeparator);
     if (tokens.length === 3) {
-        const [r, g, b] = tokens.map(getTokenColorValue);
-        return pack(r, g, b, 1);
+        var _a = tokens.map(getTokenColorValue), r = _a[0], g = _a[1], b = _a[2];
+        return exports.pack(r, g, b, 1);
     }
-
     if (tokens.length === 4) {
-        const [r, g, b, a] = tokens.map(getTokenColorValue);
-        return pack(r, g, b, a);
+        var _b = tokens.map(getTokenColorValue), r = _b[0], g = _b[1], b = _b[2], a = _b[3];
+        return exports.pack(r, g, b, a);
     }
-
     return 0;
 };
-
-function hue2rgb(t1: number, t2: number, hue: number): number {
+function hue2rgb(t1, t2, hue) {
     if (hue < 0) {
         hue += 1;
     }
     if (hue >= 1) {
         hue -= 1;
     }
-
     if (hue < 1 / 6) {
         return (t2 - t1) * hue * 6 + t1;
-    } else if (hue < 1 / 2) {
+    }
+    else if (hue < 1 / 2) {
         return t2;
-    } else if (hue < 2 / 3) {
+    }
+    else if (hue < 2 / 3) {
         return (t2 - t1) * 6 * (2 / 3 - hue) + t1;
-    } else {
+    }
+    else {
         return t1;
     }
 }
-
-const hsl = (context: Context, args: CSSValue[]): number => {
-    const tokens = args.filter(nonFunctionArgSeparator);
-    const [hue, saturation, lightness, alpha] = tokens;
-
-    const h = (hue.type === TokenType.NUMBER_TOKEN ? deg(hue.number) : angle.parse(context, hue)) / (Math.PI * 2);
-    const s = isLengthPercentage(saturation) ? saturation.number / 100 : 0;
-    const l = isLengthPercentage(lightness) ? lightness.number / 100 : 0;
-    const a = typeof alpha !== 'undefined' && isLengthPercentage(alpha) ? getAbsoluteValue(alpha, 1) : 1;
-
+var hsl = function (context, args) {
+    var tokens = args.filter(parser_1.nonFunctionArgSeparator);
+    var hue = tokens[0], saturation = tokens[1], lightness = tokens[2], alpha = tokens[3];
+    var h = (hue.type === 17 /* NUMBER_TOKEN */ ? angle_1.deg(hue.number) : angle_1.angle.parse(context, hue)) / (Math.PI * 2);
+    var s = length_percentage_1.isLengthPercentage(saturation) ? saturation.number / 100 : 0;
+    var l = length_percentage_1.isLengthPercentage(lightness) ? lightness.number / 100 : 0;
+    var a = typeof alpha !== 'undefined' && length_percentage_1.isLengthPercentage(alpha) ? length_percentage_1.getAbsoluteValue(alpha, 1) : 1;
     if (s === 0) {
-        return pack(l * 255, l * 255, l * 255, 1);
+        return exports.pack(l * 255, l * 255, l * 255, 1);
     }
-
-    const t2 = l <= 0.5 ? l * (s + 1) : l + s - l * s;
-
-    const t1 = l * 2 - t2;
-    const r = hue2rgb(t1, t2, h + 1 / 3);
-    const g = hue2rgb(t1, t2, h);
-    const b = hue2rgb(t1, t2, h - 1 / 3);
-    return pack(r * 255, g * 255, b * 255, a);
+    var t2 = l <= 0.5 ? l * (s + 1) : l + s - l * s;
+    var t1 = l * 2 - t2;
+    var r = hue2rgb(t1, t2, h + 1 / 3);
+    var g = hue2rgb(t1, t2, h);
+    var b = hue2rgb(t1, t2, h - 1 / 3);
+    return exports.pack(r * 255, g * 255, b * 255, a);
 };
-
-const SUPPORTED_COLOR_FUNCTIONS: {
-    [key: string]: (context: Context, args: CSSValue[]) => number;
-} = {
+var SUPPORTED_COLOR_FUNCTIONS = {
     hsl: hsl,
     hsla: hsl,
     rgb: rgb,
     rgba: rgb
 };
-
-export const parseColor = (context: Context, value: string): Color =>
-    color.parse(context, Parser.create(value).parseComponentValue());
-
-export const COLORS: {[key: string]: Color} = {
+var parseColor = function (context, value) {
+    return exports.color.parse(context, parser_1.Parser.create(value).parseComponentValue());
+};
+exports.parseColor = parseColor;
+exports.COLORS = {
     ALICEBLUE: 0xf0f8ffff,
     ANTIQUEWHITE: 0xfaebd7ff,
     AQUA: 0x00ffffff,
@@ -305,3 +284,4 @@ export const COLORS: {[key: string]: Color} = {
     YELLOW: 0xffff00ff,
     YELLOWGREEN: 0x9acd32ff
 };
+//# sourceMappingURL=color.js.map
