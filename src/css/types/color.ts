@@ -11,10 +11,9 @@ export const color: ITypeDescriptor<Color> = {
     parse: (context: Context, value: CSSValue): Color => {
         if (value.type === TokenType.FUNCTION) {
             const colorFunction = SUPPORTED_COLOR_FUNCTIONS[value.name];
-            if (typeof colorFunction === 'undefined') {
-                throw new Error(`Attempting to parse an unsupported color function "${value.name}"`);
+            if (typeof colorFunction !== 'undefined') {
+                return colorFunction(context, value.values);
             }
-            return colorFunction(context, value.values);
         }
 
         if (value.type === TokenType.HASH_TOKEN) {
