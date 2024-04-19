@@ -6814,7 +6814,7 @@
         };
         CanvasRenderer.prototype.renderNodeContent = function (paint) {
             return __awaiter(this, void 0, void 0, function () {
-                var container, curves, styles, _i, _a, child, image, image, iframeRenderer, canvas, size, _b, fontFamily, fontSize, baseline, bounds, x, textBounds, img, image, url, fontFamily, bounds;
+                var container, curves, styles, _i, _a, child, image, image, iframeRenderer, canvas, size, _b, font, fontFamily, fontSize, baseline, bounds, x, textBounds, img, image, url, font, bounds;
                 return __generator(this, function (_c) {
                     switch (_c.label) {
                         case 0:
@@ -6914,9 +6914,9 @@
                                 }
                             }
                             if (isTextInputElement(container) && container.value.length) {
-                                _b = this.createFontStyle(styles), fontFamily = _b[0], fontSize = _b[1];
+                                _b = this.createFontStyle(styles), font = _b[0], fontFamily = _b[1], fontSize = _b[2];
                                 baseline = this.fontMetrics.getMetrics(fontFamily, fontSize).baseline;
-                                this.ctx.font = fontFamily;
+                                this.ctx.font = font;
                                 this.ctx.fillStyle = asString(styles.color);
                                 this.ctx.textBaseline = 'alphabetic';
                                 this.ctx.textAlign = canvasTextAlign(container.styles.textAlign);
@@ -6965,8 +6965,8 @@
                         case 18: return [3 /*break*/, 20];
                         case 19:
                             if (paint.listValue && container.styles.listStyleType !== -1 /* NONE */) {
-                                fontFamily = this.createFontStyle(styles)[0];
-                                this.ctx.font = fontFamily;
+                                font = this.createFontStyle(styles)[0];
+                                this.ctx.font = font;
                                 this.ctx.fillStyle = asString(styles.color);
                                 this.ctx.textBaseline = 'middle';
                                 this.ctx.textAlign = 'right';
